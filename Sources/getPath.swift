@@ -7,14 +7,12 @@ func getPath(command: String) -> String? {
            FileManager.default.isExecutableFile(atPath: command) {
             return command
         }
-        print(command + " Found!")
         return command
         
     }
     
     // Search in PATH
     guard let pathEnv = ProcessInfo.processInfo.environment["PATH"] else {
-        print(command + " Found!")
         return command
     }
     
@@ -23,7 +21,6 @@ func getPath(command: String) -> String? {
     for directory in paths {
         let fullPath = directory + "/" + command
         if FileManager.default.isExecutableFile(atPath: fullPath) {
-            print(command + " Found at " + fullPath)
             return fullPath
         }
     }

@@ -22,6 +22,9 @@ while true {
     }
     // Start matching built ins
     switch args[0] {
+    case "exit":
+        print("Goodbye!")
+        exit(0)
     case "pwd":
         print(fileManager.currentDirectoryPath)
     case "cd":
