@@ -2,8 +2,43 @@
 // https://docs.swift.org/swift-book
 import Foundation
 import Swift
+
 let fileManager = FileManager.default
 let homeUser = fileManager.homeDirectoryForCurrentUser.path
+
+func getPath(command: String) -> String? {
+      // If it contains a slash, treat it as a direct path
+    if command.contains("/") {
+        if FileManager.default.fileExists(atPath: command) && 
+           FileManager.default.isExecutableFile(atPath: command) {
+            return(command)
+        }
+        print(command + " Found!")
+        return(command)
+        
+    }
+    
+    // Search in PATH
+    guard let pathEnv = ProcessInfo.processInfo.environment["PATH"] else {
+        print(command + " Found!")
+        return(command)
+    }
+    
+    let paths = pathEnv.components(separatedBy: ":")
+    
+    for directory in paths {
+        let fullPath = directory + "/" + command
+        if FileManager.default.isExecutableFile(atPath: fullPath) {
+            print(command + " Found at " + fullPath)
+            return(fullPath)
+        }
+    }
+    
+    print(command + "Found!")
+    return(command)
+
+}
+
 print("Welcome to xsh!")
 while true {
     print(fileManager.currentDirectoryPath + " > ", terminator: "")
@@ -44,14 +79,19 @@ while true {
             }
         }
     default:
+        guard let execPath = getPath(command: args[0]) else {
+            print("\(args[0]): Command Not Found") 
+            break
+        }
+
         let process = Process()
-        process.executableURL = URL.init(filePath: args[0])
+        process.executableURL = URL.init(filePath: execPath)
         process.arguments = Array(args[1...])
         do {
             try process.run() // start the process
             process.waitUntilExit() // wait until the process is done
         } catch {
-            print("Error: \(error)")
+            print("Error Executing: \(error)")
         }
 
         
@@ -59,3 +99,5 @@ while true {
 
     
 }
+
+
