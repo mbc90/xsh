@@ -10,29 +10,6 @@ let fileManager = FileManager.default
 let homeUser = fileManager.homeDirectoryForCurrentUser.path
 import Foundation
 
-class PseudoTerminal {
-    let masterFileHandle: FileHandle
-    
-    init() {
-        var masterFD: Int32 = -1
-        var slaveFD: Int32 = -1
-        
-        // Open a pseudo-terminal
-        if openpty(&masterFD, &slaveFD, nil, nil, nil) < 0 {
-            fatalError("Could not open pseudo-terminal")
-        }
-        
-        // Close the slave side; it's owned by the child process
-        close(slaveFD)
-        
-        masterFileHandle = FileHandle(fileDescriptor: masterFD)
-    }
-    
-    deinit {
-        masterFileHandle.closeFile()
-    }
-}
-
 print("Welcome to xsh!")
 while true {
     print(fileManager.currentDirectoryPath + " > ", terminator: "")
@@ -77,29 +54,7 @@ while true {
             print("\(args[0]): Command Not Found") 
             break
         }
-
-        let process = Process()
-        process.executableURL = URL.init(filePath: execPath)
-        process.arguments = Array(args.dropFirst())
-
-        // create a psudoterm for interactivity
-        let pty = PseudoTerminal()
-        // Inherit stdin, stdout, and stderr for interactive programs
-        process.standardInput = pty.masterFileHandle
-        process.standardOutput = pty.masterFileHandle
-        process.standardError = pty.masterFileHandle
-        
-        do {
-            try process.run() // start the process
-            #if os(macOS)
-            let pgid = process.processIdentifier
-            tcsetpgrp(pty.masterFileHandle.fileDescriptor, pgid)
-            #endif
-            process.waitUntilExit() // wait until the process is done
-        } catch {
-            print("Error Executing: \(error)")
-        }
-
+        runInteractiveCommand(execPath: execPath, args: Array(args.dropFirst()))
         
     }
 
