@@ -2,41 +2,35 @@
 // https://docs.swift.org/swift-book
 import Foundation
 import Swift
+#if os(MacOS)
+import Darwin
+#endif
 
 let fileManager = FileManager.default
 let homeUser = fileManager.homeDirectoryForCurrentUser.path
+import Foundation
 
-func getPath(command: String) -> String? {
-      // If it contains a slash, treat it as a direct path
-    if command.contains("/") {
-        if FileManager.default.fileExists(atPath: command) && 
-           FileManager.default.isExecutableFile(atPath: command) {
-            return(command)
-        }
-        print(command + " Found!")
-        return(command)
+class PseudoTerminal {
+    let masterFileHandle: FileHandle
+    
+    init() {
+        var masterFD: Int32 = -1
+        var slaveFD: Int32 = -1
         
-    }
-    
-    // Search in PATH
-    guard let pathEnv = ProcessInfo.processInfo.environment["PATH"] else {
-        print(command + " Found!")
-        return(command)
-    }
-    
-    let paths = pathEnv.components(separatedBy: ":")
-    
-    for directory in paths {
-        let fullPath = directory + "/" + command
-        if FileManager.default.isExecutableFile(atPath: fullPath) {
-            print(command + " Found at " + fullPath)
-            return(fullPath)
+        // Open a pseudo-terminal
+        if openpty(&masterFD, &slaveFD, nil, nil, nil) < 0 {
+            fatalError("Could not open pseudo-terminal")
         }
+        
+        // Close the slave side; it's owned by the child process
+        close(slaveFD)
+        
+        masterFileHandle = FileHandle(fileDescriptor: masterFD)
     }
     
-    print(command + "Found!")
-    return(command)
-
+    deinit {
+        masterFileHandle.closeFile()
+    }
 }
 
 print("Welcome to xsh!")
@@ -86,9 +80,21 @@ while true {
 
         let process = Process()
         process.executableURL = URL.init(filePath: execPath)
-        process.arguments = Array(args[1...])
+        process.arguments = Array(args.dropFirst())
+
+        // create a psudoterm for interactivity
+        let pty = PseudoTerminal()
+        // Inherit stdin, stdout, and stderr for interactive programs
+        process.standardInput = pty.masterFileHandle
+        process.standardOutput = pty.masterFileHandle
+        process.standardError = pty.masterFileHandle
+        
         do {
             try process.run() // start the process
+            #if os(macOS)
+            let pgid = process.processIdentifier
+            tcsetpgrp(pty.masterFileHandle.fileDescriptor, pgid)
+            #endif
             process.waitUntilExit() // wait until the process is done
         } catch {
             print("Error Executing: \(error)")
