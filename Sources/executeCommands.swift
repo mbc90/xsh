@@ -1,11 +1,14 @@
 import Foundation
 import Swift
+
 #if os(MacOS)
-import Darwin
+    import Darwin
+#else
+    import Glibc
 #endif
 
-func matchProc(args: Array<String>, fileManager: FileManager, homeUser: String){
-        switch args[0] {
+func matchProc(args: [String], fileManager: FileManager, homeUser: String) {
+    switch args[0] {
     case "exit":
         print("Goodbye!")
         exit(0)
@@ -14,38 +17,47 @@ func matchProc(args: Array<String>, fileManager: FileManager, homeUser: String){
         print(fileManager.currentDirectoryPath)
 
     case "cd":
-        if args.count > 1 { // user did not give a path
-           fileManager.changeCurrentDirectoryPath(args[1])
+        if args.count < 1 || args[1] == "~" {  // user did not give a path
+            guard fileManager.changeCurrentDirectoryPath(homeUser) else {
+                print("Directory not found")
+                return
+            }
+
         } else {
-            fileManager.changeCurrentDirectoryPath(homeUser)
-            
+            guard fileManager.changeCurrentDirectoryPath(args[1]) else {
+                print("Directory not found")
+                return
+            }
+
         }
 
     case "hostname":
         print(Host.current().localizedName!)
 
     case "mkdir":
-        if args[1] == "-p"{ // if user wants to create parent directories 
+        if args[1] == "-p" {  // if user wants to create parent directories
             do {
-                try fileManager.createDirectory(at: URL.init(filePath: args[2]) , withIntermediateDirectories: true)
+                try fileManager.createDirectory(
+                    at: URL.init(filePath: args[2]), withIntermediateDirectories: true)
             } catch {
-                print("Error creating Directory: \(error)")
+                print("Error creating Directory: \(error.localizedDescription)")
             }
         } else {
-            
+
             do {
-                try fileManager.createDirectory(at: URL.init(filePath: args[1]) , withIntermediateDirectories: false)
+                try fileManager.createDirectory(
+                    at: URL.init(filePath: args[1]), withIntermediateDirectories: false)
             } catch {
-                print("Error creating Directory: \(error)")
+                print("Error creating Directory: \(error.localizedDescription)")
             }
         }
     default:
         guard let execPath = getPath(command: args[0]) else {
-            print("\(args[0]): Command Not Found") 
+            print("\(args[0]): Command Not Found")
             break
         }
         runInteractiveCommand(execPath: execPath, args: Array(args.dropFirst()))
-        
+
     }
 
 }

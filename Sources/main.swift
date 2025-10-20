@@ -2,13 +2,14 @@
 // https://docs.swift.org/swift-book
 import Foundation
 import Swift
-#if os(MacOS)
-import Darwin
-#endif
 
+#if os(MacOS)
+    import Darwin
+#else
+    import Glibc
+#endif
 let fileManager = FileManager.default
 let homeUser = fileManager.homeDirectoryForCurrentUser.path
-import Foundation
 
 print("Welcome to xsh!")
 while true {
@@ -16,14 +17,12 @@ while true {
     print(displayPath + " > ", terminator: "")
     // read the line
     let cmd = readLine()
-    let args = cmd!.components(separatedBy: .whitespacesAndNewlines) // unwrap it and split by whitespace and new lines
+    let args = cmd!.components(separatedBy: .whitespacesAndNewlines)  // unwrap it and split by whitespace and new lines
     // if args[0] is empty print continure on
     if args[0].isEmpty {
-       continue
+        continue
     }
     // Start matching built ins
     matchProc(args: args, fileManager: fileManager, homeUser: homeUser)
-    
+
 }
-
-

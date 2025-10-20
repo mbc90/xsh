@@ -1,31 +1,31 @@
 import Foundation
 
 func getPath(command: String) -> String? {
-      // If it contains a slash, treat it as a direct path
+    // If it contains a slash, treat it as a direct path
     if command.contains("/") {
-        if FileManager.default.fileExists(atPath: command) && 
-           FileManager.default.isExecutableFile(atPath: command) {
+        if FileManager.default.fileExists(atPath: command)
+            && FileManager.default.isExecutableFile(atPath: command)
+        {
             return command
         }
         return command
-        
+
     }
-    
+
     // Search in PATH
     guard let pathEnv = ProcessInfo.processInfo.environment["PATH"] else {
         return command
     }
-    
+
     let paths = pathEnv.components(separatedBy: ":")
-    
+
     for directory in paths {
         let fullPath = directory + "/" + command
         if FileManager.default.isExecutableFile(atPath: fullPath) {
             return fullPath
         }
     }
-    
-    print(command + "Found!")
+
     return command
 
 }
@@ -42,8 +42,8 @@ func runInteractiveCommand(execPath: String, args: [String]) {
     let status = posix_spawn(
         &pid,
         execPath,
-        nil, // file_actions
-        nil, // attrp
+        nil,  // file_actions
+        nil,  // attrp
         cArgs,
         env
     )
@@ -62,8 +62,8 @@ func runInteractiveCommand(execPath: String, args: [String]) {
 
 func abbrivateHomePath(path: String) -> String {
     let homePath = FileManager.default.homeDirectoryForCurrentUser.path
-    if path.hasPrefix(homePath){
-        return path.replacingOccurrences(of:homePath , with: "~" )
+    if path.hasPrefix(homePath) {
+        return path.replacingOccurrences(of: homePath, with: "~")
     }
     return path
 }
