@@ -12,7 +12,8 @@ import Foundation
 
 print("Welcome to xsh!")
 while true {
-    print(fileManager.currentDirectoryPath + " > ", terminator: "")
+    let displayPath = abbrivateHomePath(path: fileManager.currentDirectoryPath)
+    print(displayPath + " > ", terminator: "")
     // read the line
     let cmd = readLine()
     let args = cmd!.components(separatedBy: .whitespacesAndNewlines) // unwrap it and split by whitespace and new lines
@@ -25,8 +26,10 @@ while true {
     case "exit":
         print("Goodbye!")
         exit(0)
+
     case "pwd":
         print(fileManager.currentDirectoryPath)
+
     case "cd":
         if args.count > 1 { // user did not give a path
            fileManager.changeCurrentDirectoryPath(args[1])
@@ -34,6 +37,7 @@ while true {
             fileManager.changeCurrentDirectoryPath(homeUser)
             
         }
+
     case "hostname":
         print(Host.current().localizedName!)
 

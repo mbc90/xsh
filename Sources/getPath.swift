@@ -59,3 +59,11 @@ func runInteractiveCommand(execPath: String, args: [String]) {
     cArgs.forEach { free($0) }
     env.forEach { free($0) }
 }
+
+func abbrivateHomePath(path: String) -> String {
+    let homePath = FileManager.default.homeDirectoryForCurrentUser.path
+    if path.hasPrefix(homePath){
+        return path.replacingOccurrences(of:homePath , with: "~" )
+    }
+    return path
+}
