@@ -3,9 +3,9 @@
 import Foundation
 import Swift
 
-#if os(MacOS)
+#if canImport(Darwin)
     import Darwin
-#else
+#elseif canImport(Glibc)
     import Glibc
 #endif
 let fileManager = FileManager.default
