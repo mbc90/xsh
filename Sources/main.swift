@@ -18,7 +18,7 @@ while true {
     // read the line
     let cmd = readLine()
     let args = cmd!.components(separatedBy: .whitespacesAndNewlines)  // unwrap it and split by whitespace and new lines
-    // if args[0] is empty print continure on
+    // if args[0] is empty continue on
     if args[0].isEmpty {
         continue
     }
