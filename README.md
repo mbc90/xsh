@@ -28,6 +28,7 @@ xsh can execute any external command available in your system's `PATH`. It uses 
 - Argument passing to child processes
 - Environment variable inheritance
 - Process wait and status handling
+
 `posix_spawn` is a necessary system call for efficient process creation and handling in xsh, the Foundation.Process() module in Swift does not provide a direct replacement for `posix_spawn`. Instead, it provides a higher-level API for managing processes and will not relinquish control to the interactive programs one may run like `htop` or `nvim`. You can pass `/bin/zsh` to `Foundation.Process` to execute interactive processes but I wanted xsh to stand on its own, without relying on external shells.
 
 ### User Interface
