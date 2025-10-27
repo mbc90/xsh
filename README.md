@@ -50,9 +50,7 @@ xsh can execute any external command available in your system's `PATH`. It uses 
 
 ## Requirements
 
-- macOS 13.0 or later
 - Swift 6.0 or later
-- Xcode (for building)
 
 ## Installation
 
