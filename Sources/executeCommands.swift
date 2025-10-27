@@ -1,14 +1,9 @@
 // executeCommands.swift
-
-//xsh/Sources/executeCommands.swift#L1-70
-//
-// executeCommands.swift
 // xsh - Command execution and dispatch
 //
 // This file contains the command dispatcher that routes user input to either
 // built-in shell commands or external executables found in PATH.
 //
-
 
 import Foundation
 import Swift
