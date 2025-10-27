@@ -1,5 +1,11 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+// main.swift
+// xsh - A simple shell implementation in Swift
+//
+// This file contains the main REPL (Read-Eval-Print Loop) for the xsh shell.
+// It handles user input, displays the prompt, and delegates command execution
+// to the appropriate handlers.
+
 import Foundation
 import Swift
 
